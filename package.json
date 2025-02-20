@@ -7,8 +7,6 @@
   "description": "",
   "version": "0.0.5",
   "icon": "./images/image.png",
-  "fuzzyThreshold":"0.15",
-  "Levinthreshold" :"50",
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -21,35 +19,7 @@
   },
   "main": "./src/extension.js",
   "contributes": {
-      "configuration": {
-        "type": "object",
-        "title": "RewindCode Settings",
-        "properties": {
-          "undotree.searchingAlgorithm": {
-            "type": "string",
-            "enum": [
-              "fuzzy",
-              "levenshtein"
-            ],
-            "default": "fuzzy",
-            "description": "Choose the searching algorithm to use: 'fuzzy' or 'levenshtein'."
-          },
-          "undotree.fuzzyThreshold": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 1,
-            "default": 0.15,
-            "description": "Set the threshold for fuzzy searching (0 to 1)."
-          },
-          "undotree.levinThreshold": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 100,
-            "default": 50,
-            "description": "Set the threshold for Levenshtein distance (0 to 100)."
-          }
-        }
-      },
+      
     "menus": {
       "view/title": [
         {
@@ -72,6 +42,7 @@
           "when": "view == undoTreeView",
           "group": "navigation@4"
         }
+        
       ]
     },
     "viewsContainers": {
@@ -133,11 +104,6 @@
         "command": "undotree.saveAndAdvance",
         "key": "alt+s",
         "when": "editorTextFocus"
-      },
-      {
-        "command": "undotree.selective",
-        "key": "alt+v",
-        "when": "editorTextFocus"
       }
     ]
   },
@@ -159,13 +125,10 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@babel/parser": "^7.25.6",
-    "acorn": "^8.12.1",
-    "acorn-walk": "^8.3.3",
+   
     "crypto": "^1.0.1",
-    "flourite": "^1.3.0",
-    "fuse.js": "^7.0.0",
-    "python-ast": "^0.1.0",
+
+    
     "yarn": "^1.22.22"
   }
 }

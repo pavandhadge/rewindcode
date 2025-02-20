@@ -1,24 +1,9 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+
 const vscode = require('vscode');
 const UndoTreeProvider = require('./undotreeprovider.js');
 const UndoTree = require('./undotree.js');
-const selective = require('./selective.js')
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 
 
-let fuzzyThreshold = 0.15;   // Default values
-let LevinThreshold = 50;      // Default values
-let searchingAlgorithm = 'fuzzy'; // Default values
-
-
-function updateConfiguration() {
-    const config = vscode.workspace.getConfiguration('undotree');
-    fuzzyThreshold = parseFloat(config.get('fuzzyThreshold')) || 0.15;
-    LevinThreshold = parseInt(config.get('LevinThreshold')) || 50;
-    searchingAlgorithm = config.get('searchingAlgorithm') || 'fuzzy';
-}
 
 
 function activate(context) {
@@ -26,17 +11,9 @@ function activate(context) {
     // Create an instance of UndoTreeProvider
     console.log('UndoTreeProvider:', UndoTreeProvider);
     const treeDataProvider = new UndoTreeProvider();
-    updateConfiguration();
 
-    // Listen for configuration changes
-    context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration(event => {
-            if (event.affectsConfiguration('undotree')) {
-                updateConfiguration(); // Update the configuration variables
-                console.log(`Updated configuration: fuzzyThreshold=${fuzzyThreshold}, LevinThreshold=${LevinThreshold}, searchingAlgorithm=${searchingAlgorithm}`);
-            }
-        })
-    );
+
+   
 
     // Register a command to update the UndoTree when the active text editor changes
     vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -106,15 +83,7 @@ function activate(context) {
             undoTree.gotoNode(node);
             treeDataProvider.refresh();
         }),
-        vscode.commands.registerCommand('undotree.selective', (node) => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            // console.log(undoTree);
-            const root = undoTree.getRoot();
-            if (!undoTree) return;
-            console.log(typeof(selective))
-            selective(node, root, context);
-            // treeDataProvider.refresh();
-        }),
+        
 
         vscode.commands.registerCommand('undotree.refreshTree', () => {
             treeDataProvider.refresh();
@@ -131,5 +100,5 @@ function deactivate() {}
 module.exports = {
     activate,
     deactivate,
-    // getConfig: () => ({ fuzzyThreshold, LevinThreshold, searchingAlgorithm })
+ 
 };
