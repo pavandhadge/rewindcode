@@ -1,11 +1,13 @@
 {
   "name": "undotree",
   "publisher": "PavanDhadgeandTeam",
-  "activationEvents": ["*"],
+  "activationEvents": [
+    "*"
+  ],
   "searchingAlgorithm": "fuzzy",
   "displayName": "RewindCode",
   "description": "",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "icon": "./images/image.png",
   "engines": {
     "vscode": "^1.54.0"
@@ -19,7 +21,6 @@
   },
   "main": "./src/extension.js",
   "contributes": {
-      
     "menus": {
       "view/title": [
         {
@@ -42,7 +43,6 @@
           "when": "view == undoTreeView",
           "group": "navigation@4"
         }
-        
       ]
     },
     "viewsContainers": {
@@ -125,10 +125,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-   
     "crypto": "^1.0.1",
-
-    
     "yarn": "^1.22.22"
   }
 }
