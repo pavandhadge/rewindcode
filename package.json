@@ -125,6 +125,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@swc/core": "^1.11.1",
     "crypto": "^1.0.1",
     "yarn": "^1.22.22"
   }
