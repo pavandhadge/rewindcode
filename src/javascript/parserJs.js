@@ -4,13 +4,14 @@ async function parseJsUsingSWC(code, config = null) {
   console.log("hi from js parser");
   try {
     // Parse the code to get AST
-    const ast = swc.parseSync(code, {
+    const ast = await swc.parseSync(code, config || {
       syntax: "ecmascript",
       jsx: true,
       isModule: true,
       dynamicImport: true,
     });
 
+    console.log("parser config for ast : ", config)
     if (ast) {
       console.log("Type of code var:", typeof code);
 
@@ -32,7 +33,7 @@ async function parseJsUsingSWC(code, config = null) {
 
       console.log("AST produced:", ast);
     }
-    return ast;
+    return { ast, extracted };
   } catch (e) {
     console.log("Error occurred while parsing JS code:", e);
     return null;
@@ -50,6 +51,7 @@ const extracted = {
   returns: [],
   tryCatch: [],
   switchCases: [],
+  expressions: [],
 };
 
 // Function to extract code and AST from AST
@@ -124,6 +126,14 @@ function extractAST(node, code) {
         ast: node,
       });
       break;
+    case "ExpressionStatement":  // NEW: Extract expression statements
+      extracted.expressions.push({
+        expression: extractCode(node.expression),
+        code: extractCode(node),
+        ast: node,
+      });
+      break;
+
 
     case "SwitchStatement":
       extracted.switchCases.push({

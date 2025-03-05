@@ -33,7 +33,7 @@ class UndoTree {
      * @param {string} newState - The new state to be added.
      * @returns {number} - The number of children after the new state is added.
      */
-    addState(newState) {
+    addState(newState, parsedData=null) {
         const newNode = {
             state: newState,
             children: [],
@@ -41,11 +41,13 @@ class UndoTree {
             hash: randomUUID(),
             datetime: new Date(),
             count: this.#stateCounter,
+            parsed: parsedData
         };
         this.#stateCounter++;
         this.#currentNode.children.push(newNode);
         const childCount = this.#currentNode.children.length;
         this.#currentNode = newNode;
+        console.log("saved with the parsed data : ", newNode.parsed)
         return childCount;
     }
 

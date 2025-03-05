@@ -104,6 +104,11 @@
         "command": "undotree.saveAndAdvance",
         "key": "alt+s",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "undotree.recommendations",
+        "key": "alt+v",
+        "when": "editorTextFocus"
       }
     ]
   },

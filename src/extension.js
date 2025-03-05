@@ -2,21 +2,11 @@
 const vscode = require('vscode');
 const UndoTreeProvider = require('./undotreeprovider.js');
 const UndoTree = require('./undotree.js');
-const {trackEditorChanges} = require("./configManager.js")
-const {parseJsUsingSWC} = require("./javascript/parser.js")
+const { trackEditorChanges } = require("./configManager.js")
+// const {parseJsUsingSWC} = require("./javascript/parserJs.js")
+const { parseCode } = require("./parse.js")
 // import { parseJsUsingSWC } from './javascript/parser.js';
-
-
-let config = {}; // Store config in memory
-let language = null;
-let framework = null;
-let funcRecommendation = null;
-
-
-// Function to update config and dependent variables
-function setConfig(newConfig) {
-
-}
+const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./configStore.js")
 
 function activate(context) {
 
@@ -24,48 +14,46 @@ function activate(context) {
     const treeDataProvider = new UndoTreeProvider();
 
 
-    
 
 
-
-    // Register a command to update the UndoTree when the active text editor changes
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
         if (editor) {
-            await trackEditorChanges(editor, (newConfig) => {
-                
-                config = newConfig;
+            const result = await trackEditorChanges(editor);
 
-                // Update dependent variables
-             language = newConfig?.["language"] || null;
-             framework = newConfig?.["framework"] || null;
-               funcRecommendation = newConfig?.["func-recommendation"] || null;
-            
-                console.log("Config updated:", config);
-                console.log("language settings :", language);
-                console.log("framework settings :", framework);
-                console.log("func recommendation settings : ",funcRecommendation)
-            });
-           
+            if (result === 1) {
+                const { config, language, framework, funcRecommendation } = getConfig();
+                console.log("Using latest config:", config);
+                console.log("Language settings:", language);
+                console.log("Framework settings:", framework);
+                console.log("Function recommendation settings:", funcRecommendation);
+            } else {
+                console.log("There was an error while getting the config");
+            }
+
             treeDataProvider.getUndoTreeForActiveEditor();
             treeDataProvider.refresh();
         }
     });
 
+    if (vscode.window.activeTextEditor) {
+        trackEditorChanges(vscode.window.activeTextEditor);
+    }
 
 
-            // Initial load
-            if (vscode.window.activeTextEditor) {
-                trackEditorChanges(vscode.window.activeTextEditor, (newConfig) => {
-                    config = newConfig;
-                });
-            }
-        
-            // Command to check config
-            context.subscriptions.push(
-                vscode.commands.registerCommand('extension.showConfig', () => {
-                    vscode.window.showInformationMessage('Config: ' + JSON.stringify(config));
-                })
-            );
+
+    // Initial load
+    if (vscode.window.activeTextEditor) {
+        trackEditorChanges(vscode.window.activeTextEditor, (newConfig) => {
+            config = newConfig;
+        });
+    }
+
+    // Command to check config
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.showConfig', () => {
+            vscode.window.showInformationMessage('Config: ' + JSON.stringify(config));
+        })
+    );
 
     // Register commands
 
@@ -97,12 +85,34 @@ function activate(context) {
 
             const text_buff = vscode.window.activeTextEditor?.document.getText() || '';
             if (text_buff !== undoTree.getCurrentNode().state) {
-                const nodeCount = undoTree.addState(text_buff);
-                undoTree.redo(nodeCount - 1);
-                treeDataProvider.refresh();
-                const result = await parseJsUsingSWC(text_buff)
+
+                let parsedData = null;
+                const config = getConfig()
+                console.log("this is config : ", config, config?.["func-recommendation"], config?.["func-recommendation"]?.active)
+                if (config?.["func-recommendation"]?.active == true) {
+
+                    parsedData = await parseCode(config?.["language"], config?.["framework"], text_buff)
+                    const nodeCount = undoTree.addState(text_buff, parsedData);
+                    undoTree.redo(nodeCount - 1);
+                    treeDataProvider.refresh();
+                } else {
+                    const nodeCount = undoTree.addState(text_buff, parsedData);
+                    undoTree.redo(nodeCount - 1);
+                    treeDataProvider.refresh();
+                }
+                // const parsedData = await parseCode(language, framework, text_buff)
             }
         }),
+        vscode.commands.registerCommand('undotree.recommendations', (node) => {
+            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+            // console.log(undoTree);
+            const root = undoTree.getRoot();
+            if (!undoTree) return;
+            console.log(typeof (selective), "\t", selective)
+            // selective(node, root, context);
+            // treeDataProvider.refresh();
+        }),
+
 
         vscode.commands.registerCommand('undotree.resetTree', () => {
             const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
@@ -126,7 +136,7 @@ function activate(context) {
             undoTree.gotoNode(node);
             treeDataProvider.refresh();
         }),
-        
+
 
         vscode.commands.registerCommand('undotree.refreshTree', () => {
             treeDataProvider.refresh();
@@ -138,10 +148,10 @@ function activate(context) {
 }
 
 // This method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() { }
 
 module.exports = {
     activate,
     deactivate,
- 
+
 };
