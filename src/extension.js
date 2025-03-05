@@ -6,7 +6,9 @@ const { trackEditorChanges } = require("./configManager.js")
 // const {parseJsUsingSWC} = require("./javascript/parserJs.js")
 const { parseCode } = require("./parse.js")
 // import { parseJsUsingSWC } from './javascript/parser.js';
-const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./configStore.js")
+const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./configStore.js");
+const { recommendation } = require('./recommendationSystem/recommendation.js');
+const { createWebview } = require('./recommendationSystem/view.js');
 
 function activate(context) {
 
@@ -103,15 +105,41 @@ function activate(context) {
                 // const parsedData = await parseCode(language, framework, text_buff)
             }
         }),
-        vscode.commands.registerCommand('undotree.recommendations', (node) => {
+        vscode.commands.registerCommand('undotree.recommendations', async (node) => {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showInformationMessage("No active editor!");
+                return;
+            }
+
+            const selection = editor.selection;
+            const selectedText = editor.document.getText(selection);
+
             const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            // console.log(undoTree);
-            const root = undoTree.getRoot();
             if (!undoTree) return;
-            console.log(typeof (selective), "\t", selective)
-            // selective(node, root, context);
-            // treeDataProvider.refresh();
+
+            const root = undoTree.getRoot();
+            let parsedData = null;
+            const config = getConfig()
+            // console.log("this is config : ", config, config?.["func-recommendation"], config?.["func-recommendation"]?.active)
+            if (config?.["func-recommendation"]?.active == true) {
+
+                parsedData = await parseCode(config?.["language"], config?.["framework"], selectedText)
+
+            }
+
+            console.log("Node Type:", typeof node, "\t", node);
+            console.log("Selected Text:", selectedText);
+            console.log("ast produced : ", parsedData)
+            const suggestions = recommendation(root, parsedData)
+            createWebview(suggestions, context)
+            // Process selection with your logic
+            // selective(node, root, selectedText);
+            console.log("suggestions given : ", suggestions)
+            // Refresh tree if necessary
+            treeDataProvider.refresh();
         }),
+
 
 
         vscode.commands.registerCommand('undotree.resetTree', () => {
