@@ -14,7 +14,9 @@ async function parseCode(language, framework, text_buff) {
                 syntax: "ecmascript",
                 jsx: framework && ["react", "next.js", "solid"].includes(framework.name),
                 isModule: language.ismodule ?? true,
-                dynamicImport: true
+                dynamicImport: true,
+                minify: false,
+                preserveAllComments: true,
             };
             return await parseJsUsingSWC(text_buff, config);
 
@@ -23,7 +25,9 @@ async function parseCode(language, framework, text_buff) {
                 syntax: "typescript",
                 tsx: framework && ["react", "next.js", "solid"].includes(framework.name),
                 isModule: language.ismodule ?? true,
-                dynamicImport: true
+                dynamicImport: true,
+                minify: false,
+                preserveAllComments: true,
             };
             return await parseJsUsingSWC(text_buff, config);
 

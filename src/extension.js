@@ -111,6 +111,7 @@ function activate(context) {
                 vscode.window.showInformationMessage("No active editor!");
                 return;
             }
+            const file_buff = vscode.window.activeTextEditor?.document.getText() || '';
 
             const selection = editor.selection;
             const selectedText = editor.document.getText(selection);
