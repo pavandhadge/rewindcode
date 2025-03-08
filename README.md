@@ -1,4 +1,4 @@
-## Undotree
+# Undotree
 
 Undotree is a powerful VSCode extension designed to enhance the traditional undo-redo functionality by introducing a tree structure to track and navigate code changes more effectively. This extension provides developers with greater control over their development history, allowing them to view and restore previous versions of code without losing valuable information or trial-and-error attempts.
 
@@ -11,6 +11,28 @@ With Undotree, developers no longer need to worry about the linear limitations o
 - **Reset Tree**: Clear the undo tree and start fresh.
 - **Selective Undo/Redo**: Select a piece of code, view all previous versions of that specific snippet, and choose the version you want to replace or copy.
 - **Timecode Toggle**: Optionally display timecodes associated with different states for better tracking.
+
+## Supported Languages
+
+Undotree currently supports the following programming languages:
+
+- **JavaScript (JS)**
+- **TypeScript (TS)**
+- **Python**
+- **Java**
+- **C++**
+- **C#**
+- **Go (Golang)**
+- **Rust**
+- **Swift**
+- **Kotlin**
+- **Ruby**
+- **HTML/CSS**
+- **SQL**
+- **PHP**
+- **PowerShell**
+
+Currently, **JavaScript (JS) and TypeScript (TS) are in production**, while the rest of the languages are in **testing and development stages**.
 
 ## Commands
 
@@ -32,12 +54,9 @@ The following commands are available within the extension:
 | Undo Tree: Save and Advance      | alt+s      |
 | Undo Tree: Selective Undo/Redo   | alt+v      |
 
-
 ## Reference Images
 ![Sidebar](./images/sidebar.png)
 ![Selective code operations](./images/selective.png)
-
-
 
 ## Installation
 
@@ -50,23 +69,26 @@ cd undotree
 yarn install
 ```
 
-Development
+## Development
 
 To develop and test this extension, ensure that you have Node.js and yarn installed. You can use the following scripts:
 
-    yarn compile: Compile the TypeScript source files.
-    yarn watch: Watch for changes and recompile automatically.
-    yarn lint: Lint the source code using ESLint.
-    yarn test: Run the test suite.
+```bash
+yarn compile   # Compile the TypeScript source files.
+yarn watch     # Watch for changes and recompile automatically.
+yarn lint      # Lint the source code using ESLint.
+yarn test      # Run the test suite.
+```
 
-Repository
+## Repository
 
-    GitHub Repository: https://github.com/pavandhadge/undotree.git
+- **GitHub Repository:** [https://github.com/pavandhadge/undotree.git](https://github.com/pavandhadge/undotree.git)
 
-Maintainers
+## Maintainers
 
-    Pavan Dhadge and Team
+- **Pavan Dhadge and Team**
 
+## License
 
-License
-This project is licensed under the GPL License.
+This project is licensed under the **GPL License**.
+
