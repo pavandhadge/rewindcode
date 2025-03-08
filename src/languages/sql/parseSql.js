@@ -2,7 +2,7 @@ const Parser = require("tree-sitter");
 const SQLLang = require("tree-sitter-sql");
 
 // Function to parse SQL queries and extract relevant constructs
-async function parseSQLUsingTreeSitter(sqlQuery) {
+async function parseSqlUsingTreeSitter(sqlQuery) {
     console.log("Parsing SQL query...");
 
     try {
@@ -104,4 +104,4 @@ function extractAST(node, sqlQuery, extracted) {
     }
 }
 
-module.exports = { parseSQLUsingTreeSitter };
+module.exports = { parseSqlUsingTreeSitter };

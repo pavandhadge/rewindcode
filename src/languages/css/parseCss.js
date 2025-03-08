@@ -1,7 +1,7 @@
 const Parser = require("tree-sitter");
 const CSSLang = require("tree-sitter-css");
 
-async function parseCSS(cssCode) {
+async function parseCssUsingTreeSitter(cssCode) {
     console.log("Parsing CSS...");
 
     try {
@@ -100,4 +100,4 @@ function extractCSSAST(node, cssCode, extracted) {
     }
 }
 
-module.exports = { parseCSS };
+module.exports = { parseCssUsingTreeSitter };

@@ -1,22 +1,22 @@
 const Parser = require("tree-sitter");
-const CppLang = require("tree-sitter-cpp");
+const PHPLang = require("tree-sitter-php");
 
-// Function to parse C++ code and extract key constructs
-async function parseCppUsingTreeSitter(code) {
-    console.log("Parsing C++ code...");
+// Function to parse PHP code and extract relevant constructs
+async function parsePHPUsingTreeSitter(code) {
+    console.log("Parsing PHP code...");
 
     try {
         const parser = new Parser();
-        parser.setLanguage(CppLang);
+        parser.setLanguage(PHPLang);
 
         const tree = parser.parse(code);
         console.log("AST produced:", tree.rootNode.toString());
 
         if (tree) {
             let extracted = {
-                ClassSpecifier: [],
-                FunctionDefinition: [],
-                ConstructorDeclaration: [],
+                FunctionDeclaration: [],
+                ClassDeclaration: [],
+                MethodDeclaration: [],
                 VariableDeclaration: [],
                 IfStatement: [],
                 WhileStatement: [],
@@ -27,12 +27,12 @@ async function parseCppUsingTreeSitter(code) {
             };
 
             extractAST(tree.rootNode, code, extracted);
-            console.log("Extracted C++ Constructs:", extracted);
+            console.log("Extracted PHP Constructs:", extracted);
 
             return { ast: tree, extracted };
         }
     } catch (e) {
-        console.log("Error while parsing C++ code:", e);
+        console.log("Error while parsing PHP code:", e);
         return null;
     }
 }
@@ -57,7 +57,7 @@ const extractCode = (node, code) => {
     }
 };
 
-// Function to traverse AST and extract relevant C++ constructs
+// Function to traverse AST and extract relevant PHP constructs
 function extractAST(node, code, extracted) {
     if (!node) return;
 
@@ -67,14 +67,13 @@ function extractAST(node, code, extracted) {
             ast: node,
         };
 
-        if (node.type === "ClassSpecifier") {
+        if (node.type === "FunctionDeclaration") {
             entry.name = node.childForFieldName("name")?.text || "";
         }
-        if (node.type === "FunctionDefinition") {
+        if (node.type === "ClassDeclaration") {
             entry.name = node.childForFieldName("name")?.text || "";
-            entry.parameters = extractCode(node.childForFieldName("parameters"), code);
         }
-        if (node.type === "ConstructorDeclaration") {
+        if (node.type === "MethodDeclaration") {
             entry.name = node.childForFieldName("name")?.text || "";
         }
         if (node.type === "VariableDeclaration") {
@@ -95,4 +94,4 @@ function extractAST(node, code, extracted) {
     }
 }
 
-module.exports = { parseCppUsingTreeSitter };
+module.exports = { parsePHPUsingTreeSitter };

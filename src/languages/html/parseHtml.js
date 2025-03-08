@@ -3,7 +3,7 @@ const HTMLLang = require("tree-sitter-html");
 const CSSLang = require("tree-sitter-css");
 const JSLang = require("tree-sitter-javascript");
 
-async function parseHTMLWithEmbedded(htmlCode) {
+async function parseHTMLWithEmbeddedUsingTreeSitter(htmlCode) {
     console.log("Parsing HTML...");
 
     try {
@@ -107,4 +107,4 @@ function extractAttributes(node, htmlCode) {
     return attributes;
 }
 
-module.exports = { parseHTMLWithEmbedded };
+module.exports = { parseHTMLWithEmbeddedUsingTreeSitter };

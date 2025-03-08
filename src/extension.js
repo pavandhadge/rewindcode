@@ -1,12 +1,12 @@
 
 const vscode = require('vscode');
 const UndoTreeProvider = require('./undotreeprovider.js');
-const UndoTree = require('./undotree.js');
-const { trackEditorChanges } = require("./configManager.js")
+const UndoTree = require('./tree/undotree.js');
+const { trackEditorChanges } = require("./config/configManager.js")
 // const {parseJsUsingSWC} = require("./javascript/parserJs.js")
 const { parseCode } = require("./parse.js")
 // import { parseJsUsingSWC } from './javascript/parser.js';
-const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./configStore.js");
+const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./config/configStore.js");
 const { recommendation } = require('./recommendationSystem/recommendation.js');
 const { createWebview } = require('./recommendationSystem/view.js');
 
@@ -135,9 +135,9 @@ function activate(context) {
             let suggestions = recommendation(root, parsedData)
             // if (suggestions !== null) {
 
-                createWebview(suggestions, context)
-                console.log("suggestions given : ", suggestions)
-                treeDataProvider.refresh();
+            createWebview(suggestions, context)
+            console.log("suggestions given : ", suggestions)
+            treeDataProvider.refresh();
             // }
             // Process selection with your logic
             // selective(node, root, selectedText);

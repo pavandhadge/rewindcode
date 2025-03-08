@@ -1,7 +1,7 @@
 const Parser = require("tree-sitter");
 const PowerShellLang = require("tree-sitter-powershell");
 
-async function parsePowerShell(psCode) {
+async function parsePowerShellUsingTreeSitter(psCode) {
     console.log("Parsing PowerShell...");
 
     try {
@@ -85,4 +85,4 @@ function extractPowerShellAST(node, psCode, extracted) {
     }
 }
 
-module.exports = { parsePowerShell };
+module.exports = { parsePowerShellUsingTreeSitter };
