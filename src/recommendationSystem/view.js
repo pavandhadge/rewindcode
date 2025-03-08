@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 
-let panel
 
 function getWebviewContent() {
     return `
@@ -181,47 +180,45 @@ function getWebviewContent() {
     `;
 }
 
+let panel = null; 
 
 function createWebview(allStat, context) {
     if (panel) {
-        // If the webview already exists and is not disposed, reveal it
-        if (panel.viewType === 'allStatesView') {
-            panel.reveal(vscode.ViewColumn.Two);
-            return; // Exit early since the webview is already active
-        } else {
-            // If the existing panel has been disposed, create a new one
-            panel = undefined;
-        }
+        // If the webview already exists, reveal and update it
+        panel.reveal(vscode.ViewColumn.Two);
+        panel.webview.html = getWebviewContent(); // Ensure the content updates
+        panel.webview.postMessage({ command: 'updateStates', data: allStat });
+        return;
     }
 
     // Create a new webview panel
     panel = vscode.window.createWebviewPanel(
         'allStatesView', // Identifier
         'All States', // Title
-        vscode.ViewColumn.Two, // Show in the first half of the screen
+        vscode.ViewColumn.Two, // Show in the second column
         {
-            enableScripts: true // Enable JavaScript in the webview
+            enableScripts: true, // Enable JavaScript in the webview
+            retainContextWhenHidden: true, // Keep the webview alive even when not visible
         }
     );
 
     // Set the HTML content of the webview
     panel.webview.html = getWebviewContent();
 
-    // Handle messages from the webview
+    // Wait for webview to load before sending data
     panel.webview.onDidReceiveMessage(
-        message => {
+        (message) => {
             switch (message.command) {
                 case 'close':
-                    panel.dispose(); // Close the webview if needed
-                    panel = undefined; // Set to undefined after disposal
-                    console.log("panel : ", panel)
+                    panel.dispose(); // Close the webview
+                    panel = null;
                     break;
                 case 'replaceText':
                     const editor = vscode.window.activeTextEditor;
                     if (editor) {
                         const selection = editor.selection;
-                        editor.edit(editBuilder => {
-                            editBuilder.replace(selection, message.data); // Replace selected text
+                        editor.edit((editBuilder) => {
+                            editBuilder.replace(selection, message.data);
                         });
                     }
                     break;
@@ -231,18 +228,18 @@ function createWebview(allStat, context) {
         context.subscriptions
     );
 
+    // Ensure panel is properly disposed when closed
     panel.onDidDispose(() => {
-        panel = undefined; // Set panel to undefined on disposal
+        panel = null;
         console.log("Webview closed by user.");
-        // Perform any additional cleanup or state updates here if needed
     });
 
-    // Send the allStates data to the webview
-    if (panel) {
-        // console.log(allStat);
-        console.log("checking if executed")
-        panel.webview.postMessage({ command: 'updateStates', data: allStat });
-    }
+    // Ensure webview is ready before sending messages
+    setTimeout(() => {
+        if (panel) {
+            panel.webview.postMessage({ command: 'updateStates', data: allStat });
+        }
+    }, 500); // Small delay to allow webview to load
 }
 
 

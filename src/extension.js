@@ -132,13 +132,16 @@ function activate(context) {
             console.log("Node Type:", typeof node, "\t", node);
             console.log("Selected Text:", selectedText);
             console.log("ast produced : ", parsedData)
-            const suggestions = recommendation(root, parsedData)
-            createWebview(suggestions, context)
+            let suggestions = recommendation(root, parsedData)
+            // if (suggestions !== null) {
+
+                createWebview(suggestions, context)
+                console.log("suggestions given : ", suggestions)
+                treeDataProvider.refresh();
+            // }
             // Process selection with your logic
             // selective(node, root, selectedText);
-            console.log("suggestions given : ", suggestions)
             // Refresh tree if necessary
-            treeDataProvider.refresh();
         }),
 
 

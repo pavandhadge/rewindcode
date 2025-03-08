@@ -11,9 +11,10 @@ function dfsIterative(startNode, candidate, candidateType) {
 
         // Get the relevant extracted array based on candidateType
         const candidateArray = node.parsed?.extracted[candidateType] || [];
-
+        console.log("curr node : ", node, " extracted  : ", node.parsed?.extracted)
         console.log("check", candidateArray)
         candidateArray.forEach(element => {
+            console.log("traversing the candidate array : ", element, element.code)
             const result = similarityIndex(element.ast, candidate);
             if (result >= 0.1) { // Adjust threshold as needed
                 suggestions.push(element.code);
@@ -35,7 +36,7 @@ function recommendation(rootNode, parsedData) {
 
     const candidateNode = parsedData.ast.body[0];
     const candidateType = candidateNode.type;  // Extracting type dynamically
-
+    console.log("this is the candidate type : ", candidateType)
     return dfsIterative(rootNode, candidateNode, candidateType); // Return final suggestions
 }
 

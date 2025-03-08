@@ -1,5 +1,6 @@
 const swc = require("@swc/core");
 
+// Main function to parse JavaScript using SWC
 async function parseJsUsingSWC(code, config = null) {
   console.log("hi from js parser");
   try {
@@ -8,70 +9,104 @@ async function parseJsUsingSWC(code, config = null) {
       jsx: true,
       isModule: true,
       dynamicImport: true,
-      minify: false, // Ensure SWC doesn't alter the code
-      preserveAllComments: true, // Keeps original comments & whitespace
+      minify: false,
+      preserveAllComments: true,
     });
 
-
-
     console.log("parser config for ast:", config);
+
     if (ast) {
       console.log("Type of code var:", typeof code);
 
-      // Reset extracted object
-      Object.keys(extracted).forEach((key) => (extracted[key] = []));
+      // Compute the smallest span start before extracting code
+      let minSpanStart = getMinSpanStart(ast);
 
-      extractAST(ast, code);
+      // Create a unique extracted object for this function call
+      const extracted = {
+        FunctionDeclaration: [],
+        FunctionExpression: [],
+        ImportDeclaration: [],
+        VariableDeclaration: [],
+        IfStatement: [],
+        ForStatement: [],
+        WhileStatement: [],
+        DoWhileStatement: [],
+        ClassDeclaration: [],
+        ReturnStatement: [],
+        TryStatement: [],
+        ExpressionStatement: [],
+        SwitchStatement: [],
+      };
+
+      extractAST(ast, code, minSpanStart, extracted);
 
       console.log("Extracted Statements:", extracted);
       console.log("AST produced:", ast);
+
+      return { ast, extracted };
     }
-    return { ast, extracted };
   } catch (e) {
     console.log("Error occurred while parsing JS code:", e);
     return null;
   }
 }
 
-// Extracted code structures
-const extracted = {
-  FunctionDeclaration: [],
-  FunctionExpression: [],
-  ImportDeclaration: [],
-  VariableDeclaration: [],
-  IfStatement: [],
-  ForStatement: [],
-  WhileStatement: [],
-  DoWhileStatement: [],
-  ClassDeclaration: [],
-  ReturnStatement: [],
-  TryStatement: [],
-  ExpressionStatement: [],
-  SwitchStatement: [],
-};
+// Function to find the minimum span start across the AST
+function getMinSpanStart(node) {
+  let minStart = Infinity;
 
-// Extract function with semantic details
-function extractAST(node, code) {
-  if (!node) return;
+  function traverse(n) {
+    if (!n) return;
+    if (n.span && n.span.start < minStart) {
+      minStart = n.span.start;
+    }
 
-  const extractCode = (n) => {
-    try {
-      const utf16Array = [...code]; // Convert to UTF-16 array
-      console.log("lets check hte utf 16 array : ", utf16Array)
-      return utf16Array.slice(n.span.start, n.span.end).join("");
-    } catch (error) {
-      console.log(`Error extracting code for ${node.type}:`, error);
+    for (const key in n) {
+      if (typeof n[key] === "object" && n[key] !== null) {
+        if (Array.isArray(n[key])) {
+          n[key].forEach((child) => traverse(child));
+        } else {
+          traverse(n[key]);
+        }
+      }
+    }
+  }
+
+  traverse(node);
+  return minStart === Infinity ? 0 : minStart; // Default to 0 if no spans exist
+}
+
+// Function to extract the correct code snippet from the AST
+const extractCode = (n, code, minSpanStart) => {
+  try {
+    if (!n.span) return "";
+
+    // Normalize span values using precomputed minSpanStart
+    const start = n.span.start - minSpanStart;
+    const end = n.span.end - minSpanStart;
+
+    if (start < 0 || end > code.length) {
+      console.error(`Invalid span: start=${start}, end=${end}, code length=${code.length}`);
       return "";
     }
-  };
+
+    return code.slice(start, end); // Extract correct substring
+  } catch (error) {
+    console.log(`Error extracting code for ${n.type}:`, error);
+    return "";
+  }
+};
+
+// Function to traverse AST and extract information
+function extractAST(node, code, minSpanStart, extracted) {
+  if (!node) return;
 
   if (node.type in extracted) {
     const entry = {
-      code: extractCode(node),
+      code: extractCode(node, code, minSpanStart),
       ast: node,
     };
 
-    // Add semantic information like the first version
     if (node.type === "FunctionDeclaration" || node.type === "FunctionExpression") {
       entry.name = node.identifier ? node.identifier.value : "anonymous";
     }
@@ -82,26 +117,25 @@ function extractAST(node, code) {
       entry.kind = node.kind;
     }
     if (node.type === "IfStatement") {
-      entry.condition = extractCode(node.test);
+      entry.condition = extractCode(node.test, code, minSpanStart);
     }
     if (node.type === "TryStatement") {
-      entry.tryBlock = extractCode(node.block);
-      entry.catchBlock = node.handler ? extractCode(node.handler) : null;
+      entry.tryBlock = extractCode(node.block, code, minSpanStart);
+      entry.catchBlock = node.handler ? extractCode(node.handler, code, minSpanStart) : null;
     }
     if (node.type === "SwitchStatement") {
-      entry.discriminant = extractCode(node.discriminant);
+      entry.discriminant = extractCode(node.discriminant, code, minSpanStart);
     }
 
     extracted[node.type].push(entry);
   }
 
-  // Recursively process child nodes
   for (const key in node) {
     if (typeof node[key] === "object" && node[key] !== null) {
       if (Array.isArray(node[key])) {
-        node[key].forEach((child) => extractAST(child, code));
+        node[key].forEach((child) => extractAST(child, code, minSpanStart, extracted));
       } else {
-        extractAST(node[key], code);
+        extractAST(node[key], code, minSpanStart, extracted);
       }
     }
   }

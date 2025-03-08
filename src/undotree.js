@@ -15,7 +15,7 @@ class UndoTree {
     /**
      * @param {string} initialState - The initial state of the root node.
      */
-    constructor(initialState) {
+    constructor(initialState, parsedData = null) {
         this.#root = {
             state: initialState,
             children: [],
@@ -23,6 +23,7 @@ class UndoTree {
             hash: randomUUID(),
             count: 0,
             datetime: new Date(),
+            parsed: parsedData
         };
         this.#currentNode = this.#root;
         console.log(this.#root.hash);
@@ -33,7 +34,7 @@ class UndoTree {
      * @param {string} newState - The new state to be added.
      * @returns {number} - The number of children after the new state is added.
      */
-    addState(newState, parsedData=null) {
+    addState(newState, parsedData = null) {
         const newNode = {
             state: newState,
             children: [],
