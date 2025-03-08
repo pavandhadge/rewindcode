@@ -32,7 +32,7 @@ async function parseCode(language, framework, text_buff) {
             return await parseJsUsingSWC(text_buff, config);
 
         case "golang":
-            throw new Error("Golang parsing is not supported.");
+            return await parseGoUsingTreeSitter(text_buff);
 
         default:
             throw new Error(`Unsupported language: ${language.name}`);
