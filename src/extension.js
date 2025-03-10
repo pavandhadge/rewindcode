@@ -1,6 +1,6 @@
 
 const vscode = require('vscode');
-const UndoTreeProvider = require('./undotreeprovider.js');
+const UndoTreeProvider = require('./tree/undotreeprovider.js');
 const UndoTree = require('./tree/undotree.js');
 const { trackEditorChanges } = require("./config/configManager.js")
 // const {parseJsUsingSWC} = require("./javascript/parserJs.js")

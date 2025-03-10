@@ -1,6 +1,6 @@
 const { fdatasyncSync } = require('fs');
-const TreeNode = require('./tree/node'); // Ensure this path is correct
-const UndoTree = require('./tree/undotree'); // Ensure this path is correct
+const TreeNode = require('./node.js'); // Ensure this path is correct
+const UndoTree = require('./undotree.js'); // Ensure this path is correct
 const vscode = require('vscode');
 
 class TreeNodeItem extends vscode.TreeItem {
