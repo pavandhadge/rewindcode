@@ -32,7 +32,7 @@ Undotree currently supports the following programming languages:
 - **PHP**
 - **PowerShell**
 
-Currently, **JavaScript (JS) and TypeScript (TS) are in production**, while the rest of the languages are in **testing and development stages**.
+Currently, **JavaScript (JS) and TypeScript (TS) are in production**, while the rest of the languages are in **testing and development stages**. - **PowerShell** support depricated .
 
 ## Commands
 
