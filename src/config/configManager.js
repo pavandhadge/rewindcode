@@ -12,7 +12,7 @@ async function findUndotreeJson(filePath) {
     const workspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
 
     while (dir.startsWith(workspaceFolder)) {
-        const jsonUri = vscode.Uri.file(path.join(dir, 'undotree.json'));
+        const jsonUri = vscode.Uri.file(path.join(dir, 'undotree.config.json'));
         try {
             await vscode.workspace.fs.stat(jsonUri);
             const content = await vscode.workspace.fs.readFile(jsonUri);

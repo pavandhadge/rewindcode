@@ -1,0 +1,14 @@
+{
+    "language": {
+        "name": "javascript",
+        "version": "5.64"
+    },
+    "framework": {
+        "name": "react",
+        "version": "18.6.9"
+    },
+    "func-recommendation": {
+        "active": true,
+        "thrushold": "0.7"
+    }
+}
