@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
-const { setConfig } = require("./configStore.js");
+const { setConfig } = require("./configStore");
 
 let lastFolder = null;
 let lastLoadedFile = null;
@@ -27,7 +27,8 @@ async function findUndotreeJson(filePath) {
             setConfig(newConfig);
             return 1; // Config updated
         } catch (error) {
-            // Ignore errors
+            // Ignore errors, but log for debugging
+            console.error(`Error reading config file: ${error.message}`);
         }
 
         const parentDir = path.dirname(dir);

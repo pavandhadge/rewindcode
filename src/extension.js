@@ -6,9 +6,10 @@ const { trackEditorChanges } = require("./config/configManager.js")
 // const {parseJsUsingSWC} = require("./javascript/parserJs.js")
 const { parseCode } = require("./parse.js")
 // import { parseJsUsingSWC } from './javascript/parser.js';
-const { getConfig, getFramework, getFuncRecommendations, getLanguage } = require("./config/configStore.js");
+const { getConfig } = require("./config/configStore.js");
 const { recommendation } = require('./recommendationSystem/recommendation.js');
 const { createWebview } = require('./recommendationSystem/view.js');
+// const { error } = require('console');
 
 function activate(context) {
 
@@ -23,11 +24,13 @@ function activate(context) {
             const result = await trackEditorChanges(editor);
 
             if (result === 1) {
-                const { config, language, framework, funcRecommendation } = getConfig();
-                console.log("Using latest config:", config);
-                console.log("Language settings:", language);
-                console.log("Framework settings:", framework);
-                console.log("Function recommendation settings:", funcRecommendation);
+                const config = getConfig();
+                if (!config) {
+                    vscode.window.showInformationMessage('No config file loaded. Using default config');
+                    // console.log("Using latest config:", config);
+                    console.log("Using latest config:", config);
+                }
+
             } else {
                 console.log("There was an error while getting the config");
             }
@@ -43,12 +46,14 @@ function activate(context) {
 
 
 
-    // Initial load
-    if (vscode.window.activeTextEditor) {
-        trackEditorChanges(vscode.window.activeTextEditor, (newConfig) => {
-            config = newConfig;
-        });
-    }
+    // // Initial load
+    // if (vscode.window.activeTextEditor) {
+    //     trackEditorChanges(vscode.window.activeTextEditor, (newConfcig) => {
+    //         config = newConfig;
+    //     });
+    // }
+
+
 
     // Command to check config
     context.subscriptions.push(
@@ -106,6 +111,11 @@ function activate(context) {
             }
         }),
         vscode.commands.registerCommand('undotree.recommendations', async (node) => {
+            const config = getConfig()
+            if (config?.["func-recommendation"]?.active != true) {
+                vscode.window.showInformationMessage('Prev. version recommendation is turned off');
+
+            }
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
                 vscode.window.showInformationMessage("No active editor!");
@@ -121,7 +131,6 @@ function activate(context) {
 
             const root = undoTree.getRoot();
             let parsedData = null;
-            const config = getConfig()
             // console.log("this is config : ", config, config?.["func-recommendation"], config?.["func-recommendation"]?.active)
             if (config?.["func-recommendation"]?.active == true) {
 

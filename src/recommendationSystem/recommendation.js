@@ -1,6 +1,8 @@
 const { similarityIndex } = require("./similarityIndex");
+const { getFuncRecommendations } = require("../config/configStore")
 
 function dfsIterative(startNode, candidate, candidateType) {
+    const funcRecommendations = getFuncRecommendations();
     if (!startNode) return [];
 
     const stack = [startNode];
@@ -16,7 +18,7 @@ function dfsIterative(startNode, candidate, candidateType) {
         candidateArray.forEach(element => {
             console.log("traversing the candidate array : ", element, element.code)
             const result = similarityIndex(element.ast, candidate);
-            if (result >= 0.1) { // Adjust threshold as needed
+            if (result >= (funcRecommendations?.["thrushold"] || 0.1)) { // Adjust threshold as needed
                 suggestions.push(element.code);
             }
         });
