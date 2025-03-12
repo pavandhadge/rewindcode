@@ -1,20 +1,20 @@
-const { parseJsUsingSWC } = require("./languages/javascript/parserJs.js");
-const { parseGoUsingTreeSitter } = require("./languages/golang/parseGo.js");
-const { parsePythonUsingTreeSitter } = require("./languages/python/parsePython.js");
-const { parseJavaUsingTreeSitter } = require("./languages/java/parseJava.js");
-const { parseCppUsingTreeSitter } = require("./languages/cpp/parseCpp.js");
-const { parseCUsingTreeSitter } = require("./languages/c/parseC.js");
-const { parseCSharpUsingTreeSitter} = require("./languages/c#/parseCSharp.js");
-const { parseRustUsingTreeSitter } = require("./languages/rust/parseRust.js");
-const { parseSwiftUsingTreeSitter } = require("./languages/swift/parseSwift.js");
-const { parseKotlinUsingTreeSitter } = require("./languages/kotlin/parseKotlin.js");
-const { parseRubyUsingTreeSitter } = require("./languages/ruby/parseRuby.js");
-const { parsePHPUsingTreeSitter } = require("./languages/php/parsePhp.js");
-const { parseHTMLWithEmbeddedUsingTreeSitter } = require("./languages/html/parseHtml.js");
-const { parseCssUsingTreeSitter } = require("./languages/css/parseCss.js");
-const { parseSqlUsingTreeSitter } = require("./languages/sql/parseSql.js");
-const { parsePowerShellUsingTreeSitter } = require("./languages/powershell/parsePowerShell.js");
-const { parseBashUsingTreeSitter } = require("./languages/bash/parseBash.js");
+const { parseJsUsingSWC } = require("./Languages/javascript/parserJs.js");
+const { parseGoUsingTreeSitter } = require("./Languages/golang/parseGo.js");
+const { parsePythonUsingTreeSitter } = require("./Languages/python/parsePython.js");
+const { parseJavaUsingTreeSitter } = require("./Languages/java/parseJava.js");
+const { parseCppUsingTreeSitter } = require("./Languages/cpp/parseCpp.js");
+const { parseCUsingTreeSitter } = require("./Languages/c/parseC.js");
+const { parseCSharpUsingTreeSitter} = require("./Languages/c#/parseCSharp.js");
+const { parseRustUsingTreeSitter } = require("./Languages/rust/parseRust.js");
+const { parseSwiftUsingTreeSitter } = require("./Languages/swift/parseSwift.js");
+const { parseKotlinUsingTreeSitter } = require("./Languages/kotlin/parseKotlin.js");
+const { parseRubyUsingTreeSitter } = require("./Languages/ruby/parseRuby.js");
+const { parsePHPUsingTreeSitter } = require("./Languages/php/parsePhp.js");
+const { parseHTMLWithEmbeddedUsingTreeSitter } = require("./Languages/html/parseHtml.js");
+const { parseCssUsingTreeSitter } = require("./Languages/css/parseCss.js");
+const { parseSqlUsingTreeSitter } = require("./Languages/sql/parseSql.js");
+const { parsePowerShellUsingTreeSitter } = require("./Languages/powershell/parsePowerShell.js");
+const { parseBashUsingTreeSitter } = require("./Languages/bash/parseBash.js");
 
 const swc = require("@swc/core");
 
