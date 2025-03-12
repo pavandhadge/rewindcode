@@ -6,14 +6,13 @@ class TreeNode {
      * @param {number} count - Count or quantity (number)
      * @param {TreeNode|null} [parent=null] - Parent TreeNode or null
      */
-    constructor(state, hash, datetime, count, parent = null,lexResult) {
+    constructor(state, hash, datetime, count, parent = null) {
         this.state = state;            // The state of the node (string)
         this.children = [];           // Array of child TreeNodes
         this.parent = parent;         // Parent TreeNode or null
         this.hash = hash;             // Unique identifier (string)
         this.datetime = datetime;     // Timestamp (Date object)
         this.count = count;           // Count or quantity (number)
-        this.lexResult = lexResult;
     }
 
     /**

@@ -1,135 +1,182 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode');
-const UndoTreeProvider = require('./undotreeprovider.js');
-const UndoTree = require('./undotree.js');
-const selective = require('./selective.js')
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-
-
-let fuzzyThreshold = 0.15;   // Default values
-let LevinThreshold = 50;      // Default values
-let searchingAlgorithm = 'fuzzy'; // Default values
-
-
-function updateConfiguration() {
-    const config = vscode.workspace.getConfiguration('undotree');
-    fuzzyThreshold = parseFloat(config.get('fuzzyThreshold')) || 0.15;
-    LevinThreshold = parseInt(config.get('LevinThreshold')) || 50;
-    searchingAlgorithm = config.get('searchingAlgorithm') || 'fuzzy';
-}
-
+const vscode = require("vscode");
+const UndoTreeProvider = require("./Tree/undotreeprovider.js");
+const UndoTree = require("./Tree/undotree.js");
+const { trackEditorChanges } = require("./Config/configManager.js");
+// const {parseJsUsingSWC} = require("./javascript/parserJs.js")
+const { parseCode } = require("./parse.js");
+// import { parseJsUsingSWC } from './javascript/parser.js';
+const { getConfig } = require("./Config/configStore.js");
+const { recommendation } = require("./RecommendationSystem/recommendation.js");
+const { createWebview } = require("./RecommendationSystem/view.js");
+// const { error } = require('console');
 
 function activate(context) {
+  const treeDataProvider = new UndoTreeProvider();
 
-    // Create an instance of UndoTreeProvider
-    console.log('UndoTreeProvider:', UndoTreeProvider);
-    const treeDataProvider = new UndoTreeProvider();
-    updateConfiguration();
+  vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+    if (editor) {
+      const result = await trackEditorChanges(editor);
 
-    // Listen for configuration changes
-    context.subscriptions.push(
-        vscode.workspace.onDidChangeConfiguration(event => {
-            if (event.affectsConfiguration('undotree')) {
-                updateConfiguration(); // Update the configuration variables
-                console.log(`Updated configuration: fuzzyThreshold=${fuzzyThreshold}, LevinThreshold=${LevinThreshold}, searchingAlgorithm=${searchingAlgorithm}`);
-            }
-        })
-    );
-
-    // Register a command to update the UndoTree when the active text editor changes
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
-        if (editor) {
-            treeDataProvider.getUndoTreeForActiveEditor();
-            treeDataProvider.refresh();
+      if (result === 1) {
+        const config = getConfig();
+        if (!config) {
+          vscode.window.showInformationMessage("No config file loaded. Using default config");
+          // console.log("Using latest config:", config);
+          console.log("Using latest config:", config);
         }
-    });
+      } else {
+        console.log("There was an error while getting the config");
+      }
 
+      treeDataProvider.getUndoTreeForActiveEditor();
+      treeDataProvider.refresh();
+    }
+  });
 
+  if (vscode.window.activeTextEditor) {
+    trackEditorChanges(vscode.window.activeTextEditor);
+  }
 
-    // Register commands
+  // // Initial load
+  // if (vscode.window.activeTextEditor) {
+  //     trackEditorChanges(vscode.window.activeTextEditor, (newConfcig) => {
+  //         config = newConfig;
+  //     });
+  // }
 
+  // Command to check config
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.showConfig", () => {
+      vscode.window.showInformationMessage("Config: " + JSON.stringify(config));
+    })
+  );
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('undotree.undo', () => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
-            const text_buff = vscode.window.activeTextEditor?.document.getText() || '';
-            if (text_buff !== undoTree.getCurrentNode().state) {
-                undoTree.addState(text_buff);
-            }
-            undoTree.undo();
-            treeDataProvider.refresh();
-        }),
+  // Register commands
 
-        vscode.commands.registerCommand('undotree.redo', () => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
-            undoTree.redo(0); // Assuming single child for simplicity, takes the first in history
-            treeDataProvider.refresh();
-        }),
+  context.subscriptions.push(
+    vscode.commands.registerCommand("undotree.undo", () => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
+      const text_buff = vscode.window.activeTextEditor?.document.getText() || "";
+      if (text_buff !== undoTree.getCurrentNode().state) {
+        undoTree.addState(text_buff);
+      }
+      undoTree.undo();
+      treeDataProvider.refresh();
+    }),
 
-        vscode.commands.registerCommand('undotree.saveAndAdvance', async () => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
+    vscode.commands.registerCommand("undotree.redo", () => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
+      undoTree.redo(0); // Assuming single child for simplicity, takes the first in history
+      treeDataProvider.refresh();
+    }),
 
-            await vscode.workspace.saveAll();
+    vscode.commands.registerCommand("undotree.saveAndAdvance", async () => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
 
-            const text_buff = vscode.window.activeTextEditor?.document.getText() || '';
-            if (text_buff !== undoTree.getCurrentNode().state) {
-                const nodeCount = undoTree.addState(text_buff);
-                undoTree.redo(nodeCount - 1);
-                treeDataProvider.refresh();
-            }
-        }),
+      await vscode.workspace.saveAll();
 
-        vscode.commands.registerCommand('undotree.resetTree', () => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
-            const newInitState = vscode.window.activeTextEditor?.document.getText() || '';
-            undoTree.reset(newInitState);
-            undoTree.addState(newInitState);
-            treeDataProvider.refresh();
-        }),
+      const text_buff = vscode.window.activeTextEditor?.document.getText() || "";
+      if (text_buff !== undoTree.getCurrentNode().state) {
+        let parsedData = null;
+        const config = getConfig();
+        console.log(
+          "this is config : ",
+          config,
+          config?.["func-recommendation"],
+          config?.["func-recommendation"]?.active
+        );
+        if (config?.["func-recommendation"]?.active == true) {
+          parsedData = await parseCode(config?.["language"], config?.["framework"], text_buff);
+          const nodeCount = undoTree.addState(text_buff, parsedData);
+          undoTree.redo(nodeCount - 1);
+          treeDataProvider.refresh();
+        } else {
+          const nodeCount = undoTree.addState(text_buff, parsedData);
+          undoTree.redo(nodeCount - 1);
+          treeDataProvider.refresh();
+        }
+        // const parsedData = await parseCode(language, framework, text_buff)
+      }
+    }),
+    vscode.commands.registerCommand("rewindcode.recommendations", async (node) => {
+      const config = getConfig();
+      if (config?.["func-recommendation"]?.active != true) {
+        vscode.window.showInformationMessage("Prev. version recommendation is turned off");
+      }
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showInformationMessage("No active editor!");
+        return;
+      }
+      const file_buff = vscode.window.activeTextEditor?.document.getText() || "";
 
-        vscode.commands.registerCommand('undotree.toggleTimecode', () => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
-            undoTree.toggleTimecode();
-            treeDataProvider.refresh();
-        }),
+      const selection = editor.selection;
+      const selectedText = editor.document.getText(selection);
 
-        vscode.commands.registerCommand('undotree.gotoState', (node) => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            if (!undoTree) return;
-            undoTree.gotoNode(node);
-            treeDataProvider.refresh();
-        }),
-        vscode.commands.registerCommand('undotree.selective', (node) => {
-            const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
-            // console.log(undoTree);
-            const root = undoTree.getRoot();
-            if (!undoTree) return;
-            console.log(typeof(selective))
-            selective(node, root, context);
-            // treeDataProvider.refresh();
-        }),
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
 
-        vscode.commands.registerCommand('undotree.refreshTree', () => {
-            treeDataProvider.refresh();
-        })
-    );
+      const root = undoTree.getRoot();
+      let parsedData = null;
+      // console.log("this is config : ", config, config?.["func-recommendation"], config?.["func-recommendation"]?.active)
+      if (config?.["func-recommendation"]?.active == true) {
+        parsedData = await parseCode(config?.["language"], config?.["framework"], selectedText);
+      }
 
-    // Register the tree data provider
-    vscode.window.registerTreeDataProvider('undoTreeView', treeDataProvider);
+      console.log("Node Type:", typeof node, "\t", node);
+      console.log("Selected Text:", selectedText);
+      console.log("ast produced : ", parsedData);
+      let suggestions = recommendation(root, parsedData);
+      // if (suggestions !== null) {
+
+      createWebview(suggestions, context);
+      console.log("suggestions given : ", suggestions);
+      treeDataProvider.refresh();
+      // }
+      // Process selection with your logic
+      // selective(node, root, selectedText);
+      // Refresh tree if necessary
+    }),
+
+    vscode.commands.registerCommand("undotree.resetTree", () => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
+      const newInitState = vscode.window.activeTextEditor?.document.getText() || "";
+      undoTree.reset(newInitState);
+      undoTree.addState(newInitState);
+      treeDataProvider.refresh();
+    }),
+
+    vscode.commands.registerCommand("undotree.toggleTimecode", () => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
+      undoTree.toggleTimecode();
+      treeDataProvider.refresh();
+    }),
+
+    vscode.commands.registerCommand("undotree.gotoState", (node) => {
+      const undoTree = treeDataProvider.getUndoTreeForActiveEditor();
+      if (!undoTree) return;
+      undoTree.gotoNode(node);
+      treeDataProvider.refresh();
+    }),
+
+    vscode.commands.registerCommand("undotree.refreshTree", () => {
+      treeDataProvider.refresh();
+    })
+  );
+
+  // Register the tree data provider
+  vscode.window.registerTreeDataProvider("undoTreeView", treeDataProvider);
 }
 
 // This method is called when your extension is deactivated
 function deactivate() {}
 
 module.exports = {
-    activate,
-    deactivate,
-    // getConfig: () => ({ fuzzyThreshold, LevinThreshold, searchingAlgorithm })
+  activate,
+  deactivate,
 };

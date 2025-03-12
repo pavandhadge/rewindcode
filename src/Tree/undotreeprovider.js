@@ -1,5 +1,6 @@
-const TreeNode = require('./node'); // Ensure this path is correct
-const UndoTree = require('./undotree'); // Ensure this path is correct
+const { fdatasyncSync } = require('fs');
+const TreeNode = require('./node.js'); // Ensure this path is correct
+const UndoTree = require('./undotree.js'); // Ensure this path is correct
 const vscode = require('vscode');
 
 class TreeNodeItem extends vscode.TreeItem {
@@ -20,7 +21,7 @@ class TreeNodeItem extends vscode.TreeItem {
     }
 }
 
-class UndoTreeProvider{
+class UndoTreeProvider {
     constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
         this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -109,4 +110,4 @@ class UndoTreeProvider{
     }
 }
 
-module.exports =UndoTreeProvider;
+module.exports = UndoTreeProvider;

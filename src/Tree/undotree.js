@@ -1,7 +1,7 @@
 const { TreeNode } = require('./node.js');
 const vscode = require('vscode');
 const { randomUUID } = require('crypto');
-const {parseJavaScript} = require('./testingparsing.js')
+
 /**
  * Represents an undo tree structure.
  */
@@ -15,7 +15,7 @@ class UndoTree {
     /**
      * @param {string} initialState - The initial state of the root node.
      */
-    constructor(initialState) {
+    constructor(initialState, parsedData = null) {
         this.#root = {
             state: initialState,
             children: [],
@@ -23,7 +23,7 @@ class UndoTree {
             hash: randomUUID(),
             count: 0,
             datetime: new Date(),
-            lexResult : parseJavaScript(initialState)
+            parsed: parsedData
         };
         this.#currentNode = this.#root;
         console.log(this.#root.hash);
@@ -34,7 +34,7 @@ class UndoTree {
      * @param {string} newState - The new state to be added.
      * @returns {number} - The number of children after the new state is added.
      */
-    addState(newState) {
+    addState(newState, parsedData = null) {
         const newNode = {
             state: newState,
             children: [],
@@ -42,12 +42,13 @@ class UndoTree {
             hash: randomUUID(),
             datetime: new Date(),
             count: this.#stateCounter,
-            lexResult : parseJavaScript(newState)
+            parsed: parsedData
         };
         this.#stateCounter++;
         this.#currentNode.children.push(newNode);
         const childCount = this.#currentNode.children.length;
         this.#currentNode = newNode;
+        console.log("saved with the parsed data : ", newNode.parsed)
         return childCount;
     }
 

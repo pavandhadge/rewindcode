@@ -3,18 +3,18 @@
         "target": "ES6",
         "module": "commonjs",
         "outDir": "./out",
+        "rootDir": "./src",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "allowJs": true,
     },
-    "include": [
-        "./**/*.ts",
-        "./**/*.js"
-    ],
+   "include": ["src"],  
     "exclude": [
         "node_modules",
-        ".vscode"
+        ".vscode",
+        "out"
     ]
 }
+
