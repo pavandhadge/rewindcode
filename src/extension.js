@@ -101,7 +101,7 @@ function activate(context) {
         // const parsedData = await parseCode(language, framework, text_buff)
       }
     }),
-    vscode.commands.registerCommand("undotree.recommendations", async (node) => {
+    vscode.commands.registerCommand("rewindcode.recommendations", async (node) => {
       const config = getConfig();
       if (config?.["func-recommendation"]?.active != true) {
         vscode.window.showInformationMessage("Prev. version recommendation is turned off");

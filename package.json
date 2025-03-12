@@ -1,5 +1,5 @@
 {
-  "name": "undotree",
+  "name": "RewindCode",
   "publisher": "PavanDhadgeandTeam",
   "activationEvents": [
     "*"
@@ -7,7 +7,7 @@
   "searchingAlgorithm": "fuzzy",
   "displayName": "RewindCode",
   "description": "",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "icon": "./images/image.png",
   "engines": {
     "vscode": "^1.54.0"
@@ -106,7 +106,7 @@
         "when": "editorTextFocus"
       },
       {
-        "command": "undotree.recommendations",
+        "command": "rewindcode.recommendations",
         "key": "alt+v",
         "when": "editorTextFocus"
       }
@@ -150,5 +150,8 @@
     "tree-sitter-sql": "^0.1.0",
     "tree-sitter-swift": "^0.7.0",
     "yarn": "^1.22.22"
+  },
+  "overrides": {
+    "tree-sitter": "^0.22.4"
   }
 }
