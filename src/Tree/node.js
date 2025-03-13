@@ -1,10 +1,10 @@
 class TreeNode {
     /**
-     * @param {string} state - The state of the node (string)
-     * @param {string} hash - Unique identifier (string)
-     * @param {Date} datetime - Timestamp (Date object)
-     * @param {number} count - Count or quantity (number)
-     * @param {TreeNode|null} [parent=null] - Parent TreeNode or null
+     * @param {string} state 
+     * @param {string} hash 
+     * @param {Date} datetime 
+     * @param {number} count
+     * @param {TreeNode|null} [parent=null] 
      */
     constructor(state, hash, datetime, count, parent = null) {
         this.state = state;            // The state of the node (string)
@@ -17,8 +17,8 @@ class TreeNode {
 
     /**
      * Adds a child node to the current node.
-     * @param {TreeNode} childNode - The child node to add
-     * @throws {Error} If the provided childNode is not an instance of TreeNode
+     * @param {TreeNode} childNode 
+     * @throws {Error} 
      */
     addChild(childNode) {
         if (childNode instanceof TreeNode) {

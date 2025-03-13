@@ -2,13 +2,11 @@ const vscode = require("vscode");
 const UndoTreeProvider = require("./Tree/undotreeprovider.js");
 const UndoTree = require("./Tree/undotree.js");
 const { trackEditorChanges } = require("./Config/configManager.js");
-// const {parseJsUsingSWC} = require("./javascript/parserJs.js")
 const { parseCode } = require("./parse.js");
-// import { parseJsUsingSWC } from './javascript/parser.js';
 const { getConfig } = require("./Config/configStore.js");
 const { recommendation } = require("./RecommendationSystem/recommendation.js");
 const { createWebview } = require("./RecommendationSystem/view.js");
-// const { error } = require('console');
+
 
 function activate(context) {
   const treeDataProvider = new UndoTreeProvider();
@@ -37,12 +35,6 @@ function activate(context) {
     trackEditorChanges(vscode.window.activeTextEditor);
   }
 
-  // // Initial load
-  // if (vscode.window.activeTextEditor) {
-  //     trackEditorChanges(vscode.window.activeTextEditor, (newConfcig) => {
-  //         config = newConfig;
-  //     });
-  // }
 
   // Command to check config
   context.subscriptions.push(
@@ -105,6 +97,7 @@ function activate(context) {
       const config = getConfig();
       if (config?.["func-recommendation"]?.active != true) {
         vscode.window.showInformationMessage("Prev. version recommendation is turned off");
+        return;
       }
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
@@ -130,15 +123,11 @@ function activate(context) {
       console.log("Selected Text:", selectedText);
       console.log("ast produced : ", parsedData);
       let suggestions = recommendation(root, parsedData);
-      // if (suggestions !== null) {
 
       createWebview(suggestions, context);
       console.log("suggestions given : ", suggestions);
       treeDataProvider.refresh();
-      // }
-      // Process selection with your logic
-      // selective(node, root, selectedText);
-      // Refresh tree if necessary
+
     }),
 
     vscode.commands.registerCommand("undotree.resetTree", () => {
